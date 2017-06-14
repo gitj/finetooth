@@ -38,7 +38,7 @@ start_free = cuda.mem_get_info()[0]
 results = []
 for max_registers in [32,64]:
     mod = SourceModule(source_code,options=['--maxrregcount=%d' % max_registers])
-    fold_fft_blocks = mod.get_function("fold_fft_blocks")
+    cycfold_multichannel = mod.get_function("cycfold_multichannel")
     for num_channels in [8,16,64]:
         for num_bins in [128,512,2048]:
             for num_lags in [1,16,128,512]:#,1024,2048]:
@@ -81,7 +81,7 @@ for max_registers in [32,64]:
                             start.synchronize()
 
                             start.record()
-                            fold_fft_blocks(pol0,pol1,phase_gpu,step_gpu,
+                            cycfold_multichannel(pol0,pol1,phase_gpu,step_gpu,
                                             np.int32(fft_len), np.int32(overlap), 
                                             np.int32(num_bins), np.int32(num_lags), np.int32(num_fft),
                                             xx2, yy2, xy2, hits_gpu,
@@ -98,7 +98,7 @@ for max_registers in [32,64]:
                                                 num_fft=num_fft,fft_len=fft_len, overlap=overlap,
                                                samples_per_bin=samples_per_bin,num_channels=num_channels,
                                                 mem_used=mem_used,max_registers=max_registers,
-                                               num_registers=fold_fft_blocks.num_regs))
+                                               num_registers=cycfold_multichannel.num_regs))
 
 results = pd.DataFrame(results)
 
